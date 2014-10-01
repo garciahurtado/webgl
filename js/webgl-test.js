@@ -107,8 +107,6 @@ function initShaders(){
  * Shader Loader
  */
 function getShader(id) {
-  var shaderScript, source, currentChild, shader;
-  
   shaderScript = document.getElementById(id);
   
   if (!shaderScript) {
