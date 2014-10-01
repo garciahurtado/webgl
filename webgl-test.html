@@ -5,12 +5,50 @@
         <title>WebGL Test</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="bootstrap-slate.min.css">
-        <link rel="stylesheet" type="text/css" href="galactron.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-slate.min.css">
+        <link rel="stylesheet" type="text/css" href="css/galactron.css">
+        <style type="text/css">
+        #canvas {
+            width: 640px;
+            height: 480px;
+            border: 1px solid black;
+            background-color: black;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        </style>
+        <script type="text/javascript" src="js/sylvester.js"></script>
+        <script type="text/javascript" src="js/webgl-utils.js"></script>
+        <script type="text/javascript" src="js/webgl-test.js"></script>
     </head>
-    <body>
+    <body onload="start()">
     <h1>WebGL Vertex Simple Test</h1>
 
-    <canvas></canvas>
+    <canvas id="canvas">
+        Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+    </canvas>
+
+    <!-- Start Vertex Shader -->
+    <script id="shader-vs" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+      
+      void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+      }
+    </script>
+    <!-- End Vertex Shader -->
+
+    <!-- Start Fragment Shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+      void main(void) {
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+      }
+    </script>
+    <!-- End Fragment Shader -->
+
     </body>
 </html>
