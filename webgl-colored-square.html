@@ -12,7 +12,7 @@
             width: 640px;
             height: 480px;
             border: 1px solid black;
-            background-color: black;
+            background-color: #600;
             margin-left: auto;
             margin-right: auto;
             display: block;
@@ -20,10 +20,11 @@
         </style>
         <script type="text/javascript" src="js/sylvester.js"></script>
         <script type="text/javascript" src="js/webgl-utils.js"></script>
-        <script type="text/javascript" src="js/webgl-test.js"></script>
+        <script type="text/javascript" src="js/webgl-common.js"></script>
+        <script type="text/javascript" src="js/webgl-colored-square.js"></script>
     </head>
     <body onload="start()">
-    <h1>WebGL Vertex Simple Test</h1>
+    <h1>WebGL Colored Square</h1>
 
     <canvas id="canvas">
         Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
@@ -32,20 +33,26 @@
     <!-- Start Vertex Shader -->
     <script id="shader-vs" type="x-shader/x-vertex">
       attribute vec3 aVertexPosition;
-
+      attribute vec4 aVertexColor;
+    
       uniform mat4 uMVMatrix;
       uniform mat4 uPMatrix;
       
+      varying lowp vec4 vColor;
+    
       void main(void) {
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vColor = aVertexColor;
       }
     </script>
     <!-- End Vertex Shader -->
 
     <!-- Start Fragment Shader -->
     <script id="shader-fs" type="x-shader/x-fragment">
+      varying lowp vec4 vColor;
+        
       void main(void) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        gl_FragColor = vColor;
       }
     </script>
     <!-- End Fragment Shader -->
