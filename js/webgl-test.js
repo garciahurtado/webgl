@@ -15,10 +15,10 @@ var mvMatrix;
 var perspectiveMatrix;
 
 function start(){
-	gl = initWebGL(document.getElementById("canvas"));
+	initWebGL(document.getElementById("canvas"));
 
 	if(gl){
-		gl.clearColor(0, 0, 0, 1); // fully black
+		gl.clearColor(0.5, 0, 0, 1); // fully black
 		gl.clearDepth(1.0);
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.EQUAL);
@@ -26,6 +26,23 @@ function start(){
 		initShaders(); // vertex and pixel shaders
 		initBuffers(); // build geometry
 		setInterval(drawScene, 15);
+	}
+}
+
+/**
+ * Init WebGL
+ */	
+function initWebGL(canvas){
+	gl = null;
+
+	try {
+		gl = canvas.getContext("experimental-webgl");
+	} catch(e){
+		// swallow
+	}
+
+	if(!gl){
+		alert("Unable to initialize WebGL");
 	}
 }
 
@@ -85,24 +102,6 @@ function initShaders(){
   gl.enableVertexAttribArray(vertexPositionAttribute);
 }
 
-/**
- * Init WebGL
- */	
-function initWebGL(canvas){
-	var gl = null;
-
-	try {
-		gl = canvas.getContext("webgl");
-	} catch(e){
-		// swallow
-	}
-
-	if(!gl){
-		alert("Unable to initialize WebGL");
-	}
-
-	return gl;
-}
 
 /**
  * Shader Loader
