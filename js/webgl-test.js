@@ -8,8 +8,8 @@
 
 // Globals
 var gl;
-var vertexBuffer;
-var vertexPosAttrib;
+var squareVerticesBuffer;
+var vertexPositionAttribute;
 var shaderProgram;
 var mvMatrix;
 var perspectiveMatrix;
@@ -33,8 +33,8 @@ function start(){
  * Vertex data
  */
 function initBuffers() {
-  vertexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  squareVerticesBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   
   var vertices = [
     1.0,  1.0,  0.0,
@@ -57,8 +57,8 @@ function drawScene() {
   loadIdentity();
   mvTranslate([-0.0, 0.0, -6.0]);
   
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  gl.vertexAttribPointer(vertexPosAttrib, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
   setMatrixUniforms();
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
@@ -81,8 +81,8 @@ function initShaders(){
 
   gl.useProgram(shaderProgram);
 
-  vertexPosAttrib = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(vertexPosAttrib);
+  vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(vertexPositionAttribute);
 }
 
 /**
