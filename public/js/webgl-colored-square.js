@@ -10,8 +10,11 @@
 var gl;
 var squareVerticesBuffer;
 var squareVerticesColorBuffer;
+
 var vertexPositionAttribute;
-var shaderProgram;
+var vertexColorAttribute;
+
+var shader;
 var mvMatrix;
 var perspectiveMatrix;
 var squareRotation = 0.0;
@@ -27,7 +30,8 @@ function start(){
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);
 
-		initShaders(); // vertex and pixel shaders
+		shader = initShaders(); // vertex and pixel shaders
+    initAttr(shader);
 		initBuffers(); // build geometry
 		setInterval(drawScene, 15);
 	}
@@ -40,7 +44,7 @@ function initWebGL(canvas){
 	gl = null;
 
 	try {
-		gl = canvas.getContext("experimental-webgl");
+		gl = canvas.getContext("webgl");
 	} catch(e){
 		// swallow
 	}
@@ -48,6 +52,15 @@ function initWebGL(canvas){
 	if(!gl){
 		alert("Unable to initialize WebGL");
 	}
+}
+
+
+/**
+ * Initialize shader attributes
+ */
+function initAttr (shader) {
+  vertexPositionAttribute = enableAttr("vertexPosition", shader);
+  vertexColorAttribute = enableAttr("vertexColor", shader);
 }
 
 /**
@@ -102,7 +115,7 @@ function drawScene() {
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffer);
   gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
 
-  setMatrixUniforms();
+  setMatrixUniforms(shader);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
   mvPopMatrix();

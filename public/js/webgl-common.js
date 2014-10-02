@@ -1,3 +1,8 @@
+/**
+ * Collection of common WebGL utility functions to reduce boilerplate
+ *
+ * @author Garcia Hurtado
+ */
 
 /**
  * Init Shaders
@@ -6,27 +11,41 @@ function initShaders(){
 	var vertexShader = getShader("shader-vs");
 	var fragmentShader = getShader("shader-fs");
 
-	shaderProgram = gl.createProgram();
-	gl.attachShader(shaderProgram, vertexShader);
-	gl.attachShader(shaderProgram, fragmentShader);
-	gl.linkProgram(shaderProgram);
+	shader = gl.createProgram();
+	gl.attachShader(shader, vertexShader);
+	gl.attachShader(shader, fragmentShader);
+	gl.linkProgram(shader);
 
-	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+	if (!gl.getProgramParameter(shader, gl.LINK_STATUS)) {
     alert("Unable to initialize the shader program.");
   }
 
-  gl.useProgram(shaderProgram);
+  gl.useProgram(shader);
+  return shader;
+}
 
-  vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(vertexPositionAttribute);
+/**
+ * Enables a OpenGL shader attribute, referred to by the variable name "attrName" in
+ * shader source, and returns the index of this new attribute, so it can be bound to a 
+ * buffer later.
+ */
+function enableAttr(attrName, shader){
+  var index = null;
 
-  vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-  gl.enableVertexAttribArray(vertexColorAttribute);
+  index = gl.getAttribLocation(shader, attrName);
+  gl.enableVertexAttribArray(index);
+
+  if(index == null){
+    throw "Unable to enable attribute '" + attrName + "'";
+  }
+  return index;
 }
 
 
 /**
- * Shader Loader
+ * Shader source code loader from script tag. You pass it the DOM ID of the element
+ * which is used to load the text contents of the script tag. The mime-type of the
+ * script tag will be used to determine the kind of shader to create and compile.
  */
 function getShader(id) {
   shaderScript = document.getElementById(id);

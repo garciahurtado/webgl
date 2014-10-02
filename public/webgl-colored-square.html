@@ -32,8 +32,8 @@
 
     <!-- Start Vertex Shader -->
     <script id="shader-vs" type="x-shader/x-vertex">
-      attribute vec3 aVertexPosition;
-      attribute vec4 aVertexColor;
+      attribute vec3 vertexPosition;
+      attribute vec4 vertexColor;
     
       uniform mat4 uMVMatrix;
       uniform mat4 uPMatrix;
@@ -41,8 +41,8 @@
       varying lowp vec4 vColor;
     
       void main(void) {
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        vColor = aVertexColor;
+        gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
+        vColor = vertexColor;
       }
     </script>
     <!-- End Vertex Shader -->
