@@ -7,20 +7,21 @@ $(document).ready(function() {
 	var tjs = THREE;
 	var config = {
 		textureFilterMagChoices: [
-		  'NEAREST',
-		  'LINEAR'
+		  'NearestFilter',
+		  'LinearFilter'
 		],
 		textureFilterMinChoices: [
-		  'NEAREST',
-		  'LINEAR',
-		  'NEAREST_MIPMAP_NEAREST',
-		  'NEAREST_MIPMAP_LINEAR',
-		  'LINEAR_MIPMAP_NEAREST',
-		  'LINEAR_MIPMAP_LINEAR'
+		  'NearestFilter',
+		  'LinearFilter',
+		  'NearestMipMapNearestFilter',
+		  'NearestMipMapLinearFilter',
+		  'LinearMipMapNearestFilter',
+		  'LinearMipMapLinearFilter'
 		],
-	  magFilter: 'LINEAR',
-	  minFilter: 'LINEAR_MIPMAP_LINEAR',
-  	cubeDist: 3
+	  magFilter: 'LinearFilter',
+	  minFilter: 'LinearMipMapLinearFilter',
+  	cubeDist: 3,
+  	rotate: true
   }
 
 	var scene = new tjs.Scene();
@@ -32,9 +33,11 @@ $(document).ready(function() {
 	var renderer = new tjs.WebGLRenderer({canvas: canvas});
 	renderer.setSize(640, 480);
 
+	var texture = tjs.ImageUtils.loadTexture('img/stormsite-logo.png');
+
 	var geometry = new tjs.BoxGeometry(1,1,1);
 	var material = new tjs.MeshPhongMaterial({
-        map: tjs.ImageUtils.loadTexture('img/stormsite-logo.png'),
+        map: texture,
        	bumpMap:  tjs.ImageUtils.loadTexture('img/stormsite-logo-bump.png'),
       });
 	var cube = new tjs.Mesh( geometry, material );
@@ -57,8 +60,10 @@ $(document).ready(function() {
 	 */
 	function render() {
 		requestAnimationFrame(render);
-		cube.rotation.x += 0.01;
-		cube.rotation.y += 0.01;
+		if(config.rotate){
+			cube.rotation.x += 0.01;
+			cube.rotation.y += 0.01;
+		}
 
 		cube.position.z = (-config.cubeDist);
 		renderer.render(scene, camera);
@@ -69,9 +74,16 @@ $(document).ready(function() {
 	 */
 	function initGui(){
 	  var gui = new dat.GUI({width: 330});
-	  gui.add(config, 'magFilter', config.textureFilterMagChoices);
-	  gui.add(config, 'minFilter', config.textureFilterMinChoices);
-	  gui.add(config, 'cubeDist', 2, 7);
+	  gui.add(config, 'magFilter', config.textureFilterMagChoices).onChange(function(value){
+    	texture.magFilter = THREE[config.magFilter];
+    	texture.needsUpdate = true;
+  	});
+	  gui.add(config, 'minFilter', config.textureFilterMinChoices).onChange(function(value){
+    	texture.minFilter = THREE[config.minFilter];
+    	texture.needsUpdate = true;
+  	});
+	  gui.add(config, 'cubeDist', 1, 8);
+	  gui.add(config, 'rotate');
 	}
 });
 

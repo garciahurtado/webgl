@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>WebGL Test</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-slate.min.css">
+        <link rel="stylesheet" type="text/css" href="css/galactron.css">
+        <style type="text/css">
+        #canvas {
+            width: 640px;
+            height: 480px;
+            border: 1px solid black;
+            background-color: #600;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        </style>
+        <script type="text/javascript" src="js/dat.gui.min.js"></script>
+        <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="js/three.min.js"></script>
+        <script type="text/javascript" src="js/threejs-shaders-chiseled-edges.js"></script>
+    </head>
+    <body>
+    <h1>Custom Shader - Chiseled Edges</h1>
+
+    <canvas id="canvas" width="640" height="480">
+        Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+    </canvas>
+
+    <p>There is no (directed) lighting in this scene. It also only uses a simple cube. The shader does all the 
+    work of simulating the chiseld edges effect. The shadows in the faux "beams" are simulated by using different 
+    shades of green for each edge of the side of the cube. There are obvious alpha blending artifacts (TODO)</p>
+    <p>Uses Three.js</p>    
+
+    <script type="x-shader/x-vertex" id="vertexShader">
+        varying vec2 vUv;
+
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+        precision highp float;
+        varying vec2 vUv;
+        uniform float edgeWidth;
+        float opacity;
+        
+        /**
+         * We use the UV coordinates of the fragments in order to calculate the distance
+         * to an edge. If the distance is under "edgeWidth", we color the fragment, otherwise
+         * we make it transparent. This gives the object a wireframed look with configurable
+         * line width, but probably only works for quads.
+         */
+        void main(void) {
+            opacity = 1.0;
+
+            if( vUv[0]<(0.0 + edgeWidth) && (vUv[0] < vUv[1]) && ( vUv[0] < (1.0 - vUv[1]))){
+                gl_FragColor = vec4(0.258, 0.498, 0.211, opacity);
+
+            } else if(vUv[0]>(1.0 - edgeWidth) && (vUv[0] > vUv[1]) && ( vUv[0] > (1.0 - vUv[1]))) {
+                gl_FragColor = vec4(0.517, 1.0, 0.423, opacity);
+
+            } else if(vUv[1]<(0.0 + edgeWidth) && (vUv[1] < vUv[0]) && ( vUv[1] < (1.0 - vUv[0]))) {
+                gl_FragColor = vec4(0.388, 0.749, 0.317, opacity);
+
+            } else if(vUv[1]>(1.0 - edgeWidth)) {
+                gl_FragColor = vec4(0.466, 0.898, 0.380, opacity);
+
+            } else {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 0.0);
+            }
+        }
+    </script>
+
+    </body>
+</html>

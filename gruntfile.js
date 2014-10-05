@@ -17,7 +17,7 @@ module.exports = function(grunt) {
           nodeArgs: ['--debug'],
           delayTime: 1,
           env: {
-            PORT: require('./server/config/config').port
+            PORT: 3000
           },
           cwd: __dirname
         }
