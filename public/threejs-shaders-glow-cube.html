@@ -18,9 +18,23 @@
             display: block;
         }
         </style>
-        <script type="text/javascript" src="js/dat.gui.min.js"></script>
-        <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-        <script type="text/javascript" src="js/three.min.js"></script>
+        <script type="text/javascript" src="js/lib/dat.gui.min.js"></script>
+        <script type="text/javascript" src="js/lib/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/three.min.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/postprocessing/EffectComposer.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/postprocessing/ShaderPass.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/postprocessing/RenderPass.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/postprocessing/MaskPass.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/postprocessing/BloomPass.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/CopyShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/DotScreenShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/ConvolutionShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/AdditiveBlendShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/HorizontalBlurShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/VerticalBlurShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/BrightnessContrastShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/shaders/ColorifyShader.js"></script>
+        <script type="text/javascript" src="js/lib/threejs/core/Clock.js"></script>
         <script type="text/javascript" src="js/threejs-shaders-glow-cube.js"></script>
     </head>
     <body>
@@ -31,7 +45,7 @@
     </canvas>
 
     <p>No textures are used. This shader currently only works well for cubes, since it uses the Texture UV coordinates to determine
-    fragment distance from the edge, and based on the distance, apply the alpha fallout to the glow gradient. A future version should use the barycentric coordinates of rendered triangles in order to work for all edges.</p>
+    fragment distance from the edge, and based on the distance, apply the alpha fallout to the glow gradient. A future version should use the barycentric coordinates of rendered triangles in order to work for all edges. The final composition has a glow shader pass applied to the whole scene.</p>
 
     <script type="x-shader/x-vertex" id="vertexShader">
         varying vec2 vUv;
@@ -46,6 +60,7 @@
         precision highp float;
         varying vec2 vUv;
         uniform float edgeWidth;
+        uniform float time;
         float opacity;
         
         /**
@@ -55,25 +70,36 @@
          * line width, but probably only works for quads.
          */
         void main(void) {
-            if( vUv[0]<(0.0 + edgeWidth) && (vUv[0] < vUv[1]) && ( vUv[0] < (1.0 - vUv[1]))){
-                opacity = 1.0 - (vUv[0] / edgeWidth);
-                gl_FragColor = vec4(0.0, 1.0, 0.0, opacity);
+            vec3 color;
+            vec3 green = vec3(0.0,1.0,0.0);
 
-            } else if(vUv[0]>(1.0 - edgeWidth) && (vUv[0] > vUv[1]) && ( vUv[0] > (1.0 - vUv[1]))) {
-                opacity = 1.0 - ((1.0 - vUv[0]) / edgeWidth);
-                gl_FragColor = vec4(0.0, 1.0, 0.0, opacity);
+            // Implement a sine wave "wobble" on the glow along the edge, to make it more interesting
+            float waveSpeed = 33.0;
+            float timeDelta = time * waveSpeed;
+            float waveIntensity = 0.0015; // how pronounced the glow "wobble" is
+            float waveRepeat = 3.8; // number of waves per edge  
+            float waveWidthX = sin((vUv[1] * waveRepeat) + timeDelta) * waveIntensity + (edgeWidth / 1.7);
+            float waveWidthY = sin((vUv[0] * waveRepeat) + timeDelta) * waveIntensity + (edgeWidth / 1.7);
 
-            } else if(vUv[1]<(0.0 + edgeWidth) && (vUv[1] < vUv[0]) && ( vUv[1] < (1.0 - vUv[0]))) {
-                opacity = 1.0 - (vUv[1] / edgeWidth);
-                gl_FragColor = vec4(0.0, 1.0, 0.0, opacity);
-
-            } else if(vUv[1]>(1.0 - edgeWidth)) {
-                opacity = 1.0 - ((1.0 - vUv[1]) / edgeWidth);
-                gl_FragColor = vec4(0.0, 1.0, 0.0, opacity);
-
+            if( vUv[0]<(0.0 + waveWidthX) && (vUv[0] < vUv[1]) && ( vUv[0] < (1.0 - vUv[1]))){
+                opacity = 1.0 - (vUv[0] / waveWidthX);
+                color = green;  
+            } else if(vUv[0]>(1.0 - waveWidthX) && (vUv[0] > vUv[1]) && ( vUv[0] > (1.0 - vUv[1]))) {
+                opacity = 1.0 - ((1.0 - vUv[0]) / waveWidthX);
+                color = green;
+            } else if(vUv[1]<(0.0 + waveWidthY) && (vUv[1] < vUv[0]) && ( vUv[1] < (1.0 - vUv[0]))) {
+                opacity = 1.0 - (vUv[1] / waveWidthY);
+                color = green;              
+            } else if(vUv[1]>(1.0 - waveWidthY)) {
+                opacity = 1.0 - ((1.0 - vUv[1]) / waveWidthY);
+                color = green;
             } else {
-                gl_FragColor = vec4(1.0, 1.0, 1.0, 0.0);
+                opacity = 1.0;
+                color = vec3(0.0,0.0,0.0);
             }
+
+            gl_FragColor = vec4(color, opacity);
+
         }
     </script>
 
